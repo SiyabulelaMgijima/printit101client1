@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import TestApi from "./views/TestApi";
 import CustomerTestApi from "./views/CustomerTestApi";
 import CustomerDemo from "./components/CustomerDemo";
@@ -14,7 +14,9 @@ import Auth from "./components/Auth";
 import { Cart } from "./components/Cart";
 import { Checkout } from "./components/Checkout";
 import { CartProvider } from "./context/CartContext";
-import { AuthProvider, useAuth } from "./context/AuthContext"; //
+import { AuthProvider, useAuth } from "./context/AuthContext";
+import Auth from "./components/Auth";
+import AdminDashboard from "./components/AdminDashboard";
 
 function App() {
     return (
@@ -29,17 +31,22 @@ function App() {
 }
 
 function Layout() {
-    const { isLoggedIn } = useAuth();
+    const { isLoggedIn, user } = useAuth();
 
     const handleAuthSuccess = (user: any) => {
         // Authentication is handled in the Login component
         // This will redirect to the main app
     };
 
+    // Ensure we wait for auth state to be properly initialized
+    if (isLoggedIn && !user) {
+        return <div>Loading...</div>;
+    }
+
     return (
         <>
-            {/* Cart only shows after login */}
-            {isLoggedIn && <Cart />}
+            {/* Cart only shows after login for customers */}
+            {isLoggedIn && user?.role === "CUSTOMER" && <Cart />}
 
             <Routes>
                 {/* Show auth page if not logged in */}
